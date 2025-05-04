@@ -35,6 +35,7 @@ static const char rcsid[] = "$Id: d_main.c,v 1.8 1997/02/03 22:45:09 b1 Exp $";
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include <fcntl.h> // For R_OK constant
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -340,7 +341,7 @@ void D_Display (void)
 			       , 0, 0, SCREENWIDTH, SCREENHEIGHT, tics);
 	I_UpdateNoBlit ();
 	M_Drawer ();                            // menu is drawn even on top of wipes
-	I_FinishUpdate ();                      // page flip or blit buffer
+	I_FinishUpdateVideo();	// page flip or blit buffer (handles both terminal and X11 modes)
     } while (!done);
 }
 
@@ -364,7 +365,7 @@ void D_DoomLoop (void)
 	debugfile = fopen (filename,"w");
     }
 	
-    I_InitGraphics ();
+    I_InitVideo();
 
     while (1)
     {
@@ -655,7 +656,7 @@ void IdentifyVersion (void)
 	return;
     }
 
-    if ( !access (doom2fwad,R_OK) )
+    if ( !access (doom2fwad,4) ) // 4 = R_OK
     {
 	gamemode = commercial;
 	// C'est ridicule!
@@ -666,42 +667,42 @@ void IdentifyVersion (void)
 	return;
     }
 
-    if ( !access (doom2wad,R_OK) )
+    if ( !access (doom2wad,4) ) // 4 = R_OK
     {
 	gamemode = commercial;
 	D_AddFile (doom2wad);
 	return;
     }
 
-    if ( !access (plutoniawad, R_OK ) )
+    if ( !access (plutoniawad, 4) ) // 4 = R_OK
     {
       gamemode = commercial;
       D_AddFile (plutoniawad);
       return;
     }
 
-    if ( !access ( tntwad, R_OK ) )
+    if ( !access ( tntwad, 4 ) ) // 4 = R_OK
     {
       gamemode = commercial;
       D_AddFile (tntwad);
       return;
     }
 
-    if ( !access (doomuwad,R_OK) )
+    if ( !access (doomuwad,4) ) // 4 = R_OK
     {
       gamemode = retail;
       D_AddFile (doomuwad);
       return;
     }
 
-    if ( !access (doomwad,R_OK) )
+    if ( !access (doomwad,4) ) // 4 = R_OK
     {
       gamemode = registered;
       D_AddFile (doomwad);
       return;
     }
 
-    if ( !access (doom1wad,R_OK) )
+    if ( !access (doom1wad,4) ) // 4 = R_OK
     {
       gamemode = shareware;
       D_AddFile (doom1wad);

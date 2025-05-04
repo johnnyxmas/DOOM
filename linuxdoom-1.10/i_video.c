@@ -46,7 +46,8 @@ int XShmGetEventBase( Display* dpy ); // problems with g++?
 #include <sys/socket.h>
 
 #include <netinet/in.h>
-#include <errnos.h>
+#include <errno.h>
+#include "i_video_term.h"  // For terminal mode functions
 #include <signal.h>
 
 #include "doomstat.h"
@@ -82,6 +83,7 @@ int		X_shmeventtype;
 // Needs an invisible mouse cursor at least.
 boolean		grabMouse;
 int		doPointerWarp = POINTER_WARP_COUNTDOWN;
+boolean		terminalmode = false;
 
 // Blocky mode,
 // replace each 320x200 pixel with multiply*multiply pixels.
@@ -162,6 +164,11 @@ int xlatekey(void)
 }
 
 void I_ShutdownGraphics(void)
+{
+    if (terminalmode) {
+        I_ShutdownGraphicsTerm();
+        return;
+    }
 {
   // Detach from X server
   if (!XShmDetach(X_display, &X_shminfo))
@@ -349,7 +356,12 @@ void I_UpdateNoBlit (void)
 //
 // I_FinishUpdate
 //
-void I_FinishUpdate (void)
+void I_FinishUpdate(void)
+{
+    if (terminalmode) {
+        I_FinishUpdateTerm();
+        return;
+    }
 {
 
     static int	lasttic;
@@ -579,7 +591,12 @@ void UploadNewPalette(Colormap cmap, byte *palette)
 //
 // I_SetPalette
 //
-void I_SetPalette (byte* palette)
+void I_SetPalette(byte* palette)
+{
+    if (terminalmode) {
+        I_SetPaletteTerm(palette);
+        return;
+    }
 {
     UploadNewPalette(X_cmap, palette);
 }
@@ -689,7 +706,28 @@ void grabsharedmemory(int size)
 	  (int) (image->data));
 }
 
+// Global flag for terminal mode
+boolean terminalmode = false;
+
+boolean terminalmode = false;
+
 void I_InitGraphics(void)
+{
+    // Check for terminal mode flag
+    terminalmode = M_CheckParm("-terminal");
+    
+    if (terminalmode) {
+        I_InitGraphicsTerm();
+        return;
+    }
+{
+    // Check for terminal mode flag
+    terminalmode = M_CheckParm("-terminal");
+    
+    if (terminalmode) {
+        I_InitGraphicsTerm();
+        return;
+    }
 {
 
     char*		displayname;

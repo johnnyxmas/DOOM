@@ -14,8 +14,13 @@ LIBS=-lXext -lX11 -lnsl -lm
 O=linux
 
 # not too sophisticated dependency
+# Create output directory if it doesn't exist
+$(shell mkdir -p $(O))
+
 OBJS=				\
 		$(O)/doomdef.o		\
+		$(O)/i_video_term.o	\
+		$(O)/i_video_switch.o	\
 		$(O)/doomstat.o		\
 		$(O)/dstrings.o		\
 		$(O)/i_system.o		\
